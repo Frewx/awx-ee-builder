@@ -1,0 +1,27 @@
+---
+# There is not enough information on v1, but this link is useful: https://www.ansible.com/blog/introduction-to-ansible-builder
+
+# This is an example for ansible-builder version 1, in this example
+# This example installs bind-utils,git-core with bindep.txt and terraform, azure-cli binaries to the main image in append
+# Also pynetbox as a python package, awx.awx, community.general as ansible galaxy modules.
+
+# This install is using awx-ee:23.8.0 as base image
+
+version: 1
+
+build_arg_defaults:
+  EE_BASE_IMAGE: quay.io/ansible/awx-ee:23.8.0
+
+dependencies:
+  system: dependencies/bindep.txt
+  python: dependencies/requirements.txt
+  galaxy: dependencies/requirements.yml
+
+additional_build_steps:
+  append:
+    - RUN yum install -y yum-utils
+    - RUN yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    - RUN yum -y install terraform
+    - RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    - RUN dnf install -y https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
+    - RUN dnf -y install azure-cli
